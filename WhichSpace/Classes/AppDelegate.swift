@@ -111,7 +111,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, SUUpdaterDel
         configureApplication()
         configureObservers()
         configureMenuBarIcon()
-        configureSparkle()
+       // configureSparkle()
         configureSpaceMonitor()
         updateActiveSpaceNumber()
     }
@@ -159,7 +159,7 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, SUUpdaterDel
             let spaceNumber = index + 1
             if spaceID == activeSpaceID {
                 DispatchQueue.main.async {
-                    self.statusBarItem.button?.title = String("\(spaceNumber)")
+                    self.statusBarItem.button?.title = "◆ " + String("\(spaceNumber)")
                 }
                 return
             }
