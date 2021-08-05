@@ -7,22 +7,20 @@
 //
 
 import Cocoa
-import Sparkle
 
 @NSApplicationMain
 @objc
-class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, SUUpdaterDelegate {
+class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
 
     @IBOutlet weak var window: NSWindow!
     @IBOutlet weak var statusMenu: NSMenu!
     @IBOutlet weak var application: NSApplication!
     @IBOutlet weak var workspace: NSWorkspace!
-    @IBOutlet weak var updater: SUUpdater!
 
     let mainDisplay = "Main"
     let spacesMonitorFile = "~/Library/Preferences/com.apple.spaces.plist"
 
-    let statusBarItem = NSStatusBar.system.statusItem(withLength: 27)
+    let statusBarItem = NSStatusBar.system.statusItem(withLength: 20)
     let conn = _CGSDefaultConnection()
 
     static var darkModeEnabled = false
@@ -42,12 +40,6 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, SUUpdaterDel
             name: NSWorkspace.activeSpaceDidChangeNotification,
             object: workspace
         )
-        DistributedNotificationCenter.default().addObserver(
-            self,
-            selector: #selector(updateDarkModeStatus(_:)),
-            name: NSNotification.Name("AppleInterfaceThemeChangedNotification"),
-            object: nil
-        )
         NotificationCenter.default.addObserver(
             self,
             selector: #selector(AppDelegate.updateActiveSpaceNumber),
@@ -57,17 +49,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, SUUpdaterDel
     }
 
     fileprivate func configureMenuBarIcon() {
-        updateDarkModeStatus()
-        statusBarItem.button?.cell = StatusItemCell()
-        statusBarItem.image = NSImage(named: "default") // This icon appears when switching spaces when cell length is variable width.
+        statusBarItem.image = NSImage(named: "status")
         statusBarItem.menu = statusMenu
-    }
-
-    fileprivate func configureSparkle() {
-        updater = SUUpdater.shared()
-        updater.delegate = self
-        // Silently check for updates on launch
-        updater.checkForUpdatesInBackground()
     }
 
     fileprivate func configureSpaceMonitor() {
@@ -97,21 +80,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, SUUpdaterDel
         source.resume()
     }
 
-    @objc func updateDarkModeStatus(_ sender: AnyObject? = nil) {
-        let dictionary = UserDefaults.standard.persistentDomain(forName: UserDefaults.globalDomain);
-        if let interfaceStyle = dictionary?["AppleInterfaceStyle"] as? NSString {
-            AppDelegate.darkModeEnabled = interfaceStyle.localizedCaseInsensitiveContains("dark")
-        } else {
-            AppDelegate.darkModeEnabled = false
-        }
-    }
-
     func applicationWillFinishLaunching(_ notification: Notification) {
         PFMoveToApplicationsFolderIfNecessary()
         configureApplication()
         configureObservers()
         configureMenuBarIcon()
-       // configureSparkle()
         configureSpaceMonitor()
         updateActiveSpaceNumber()
     }
@@ -159,27 +132,11 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate, SUUpdaterDel
             let spaceNumber = index + 1
             if spaceID == activeSpaceID {
                 DispatchQueue.main.async {
-                    self.statusBarItem.button?.title = "◆ " + String("\(spaceNumber)")
+                    self.statusBarItem.button?.title = "◆" + String("\(spaceNumber)")
                 }
                 return
             }
         }
-    }
-
-    func menuWillOpen(_ menu: NSMenu) {
-        if let cell = statusBarItem.button?.cell as! StatusItemCell? {
-            cell.isMenuVisible = true
-        }
-    }
-
-    func menuDidClose(_ menu: NSMenu) {
-        if let cell = statusBarItem.button?.cell as! StatusItemCell? {
-            cell.isMenuVisible = false
-        }
-    }
-
-    @IBAction func checkForUpdatesClicked(_ sender: NSMenuItem) {
-        updater.checkForUpdates(sender)
     }
 
     @IBAction func quitClicked(_ sender: NSMenuItem) {

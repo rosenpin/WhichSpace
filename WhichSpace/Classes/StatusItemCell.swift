@@ -13,22 +13,23 @@ class StatusItemCell: NSStatusBarButtonCell {
     var isMenuVisible = false
     
     override func drawImage(_ image: NSImage, withFrame frame: NSRect, in controlView: NSView) {
-
-        var whiteColor: NSColor
-        if AppDelegate.darkModeEnabled {
-            whiteColor = NSColor(calibratedWhite: 0, alpha: 1)
-        } else {
-            whiteColor = NSColor(calibratedWhite: 1, alpha: 1)
-        }
-
-        let foregroundColor = whiteColor
+         var darkColor: NSColor
+         var whiteColor: NSColor
+         if AppDelegate.darkModeEnabled {
+             darkColor = NSColor(calibratedWhite: 0.7, alpha: 1)
+             whiteColor = NSColor(calibratedWhite: 0, alpha: 1)
+         } else {
+             darkColor = NSColor(calibratedWhite: 0.3, alpha: 1)
+             whiteColor = NSColor(calibratedWhite: 1, alpha: 1)
+         }
+        let foregroundColor = isMenuVisible ? darkColor : whiteColor
         
         let titleRect = NSRect(x: frame.origin.x, y: frame.origin.y + 3, width: frame.size.width, height: frame.size.height)
         
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = NSTextAlignment.center
         
-        let font = NSFont.systemFont(ofSize: 12)
+        let font = NSFont.systemFont(ofSize: 13)
         let attributes = [convertFromNSAttributedStringKey(NSAttributedString.Key.font): font, convertFromNSAttributedStringKey(NSAttributedString.Key.paragraphStyle): paragraphStyle, convertFromNSAttributedStringKey(NSAttributedString.Key.foregroundColor): foregroundColor]
         title.draw(in: titleRect, withAttributes:convertToOptionalNSAttributedStringKeyDictionary(attributes))
     }
